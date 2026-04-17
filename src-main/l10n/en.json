@@ -486,5 +486,9 @@
   "extension-documentation.title": {
     "string": "{APP_NAME} Extension Documentation",
     "developer_comment": "Title of in-app window for viewing extension documentation."
+  },
+  "detached-stage.title": {
+    "string": "Detached Stage",
+    "developer_comment": "Title of window when the stage is detached into a separate window."
   }
 }

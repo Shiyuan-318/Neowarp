@@ -22,10 +22,37 @@ contextBridge.exposeInMainWorld('EditorPreload', {
     exportForPackager = callback;
   },
   setIsFullScreen: (isFullScreen) => ipcRenderer.invoke('set-is-full-screen', isFullScreen),
-  getSystemStats: () => ipcRenderer.invoke('get-system-stats')
+  getSystemStats: () => ipcRenderer.invoke('get-system-stats'),
+  detachStage: () => ipcRenderer.invoke('detach-stage'),
+  reattachStage: () => ipcRenderer.invoke('reattach-stage'),
+  sendStageFrame: (dataURL) => ipcRenderer.send('stage-frame', dataURL),
+  onStageDetached: (callback) => {
+    stageDetachedCallback = callback;
+  },
+  onStageReattached: (callback) => {
+    stageReattachedCallback = callback;
+  },
+  onDetachedStageInput: (callback) => {
+    detachedStageInputCallback = callback;
+  }
 });
 
 let exportForPackager = () => Promise.reject(new Error('exportForPackager missing'));
+let stageDetachedCallback = null;
+let stageReattachedCallback = null;
+let detachedStageInputCallback = null;
+
+ipcRenderer.on('stage-detached', () => {
+  if (stageDetachedCallback) stageDetachedCallback();
+});
+
+ipcRenderer.on('stage-reattached', () => {
+  if (stageReattachedCallback) stageReattachedCallback();
+});
+
+ipcRenderer.on('detached-stage-input', (event, inputData) => {
+  if (detachedStageInputCallback) detachedStageInputCallback(inputData);
+});
 
 ipcRenderer.on('export-project-to-port', (e) => {
   const port = e.ports[0];

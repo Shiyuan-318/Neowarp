@@ -23,6 +23,9 @@ import {WrappedFileHandle} from './filesystem-api.js';
 import {setStrings} from '../prompt/prompt.js';
 
 let mountedOnce = false;
+let isStageDetached = false;
+let frameStreamingActive = false;
+let frameAnimationId = null;
 
 /**
  * @param {string} filename
@@ -60,6 +63,78 @@ const handleClickAbout = () => {
 
 const handleClickSourceCode = () => {
   window.open('https://github.com/TurboWarp');
+};
+
+const startFrameStreaming = (vm) => {
+  if (frameStreamingActive) return;
+  frameStreamingActive = true;
+
+  const streamFrame = () => {
+    if (!frameStreamingActive || !isStageDetached) return;
+    try {
+      if (vm.renderer && vm.renderer.requestSnapshot) {
+        // Use the renderer's built-in snapshot API
+        // This properly handles preserveDrawingBuffer and renders the frame
+        vm.renderer.requestSnapshot((dataURL) => {
+          if (frameStreamingActive && isStageDetached) {
+            EditorPreload.sendStageFrame(dataURL);
+          }
+        });
+      }
+    } catch (e) {
+      // ignore
+    }
+    frameAnimationId = setTimeout(streamFrame, 33);
+  };
+  streamFrame();
+};
+
+const stopFrameStreaming = () => {
+  frameStreamingActive = false;
+  if (frameAnimationId !== null) {
+    clearTimeout(frameAnimationId);
+    frameAnimationId = null;
+  }
+};
+
+const handleDetachedStageInput = (vm, inputData) => {
+  try {
+    if (inputData.type === 'mousedown' || inputData.type === 'mouseup' || inputData.type === 'mousemove') {
+      const data = {
+        x: inputData.x,
+        y: inputData.y,
+        canvasWidth: inputData.canvasWidth || 480,
+        canvasHeight: inputData.canvasHeight || 360
+      };
+      if (inputData.type === 'mousedown') {
+        data.isDown = true;
+        data.button = inputData.button || 0;
+      } else if (inputData.type === 'mouseup') {
+        data.isDown = false;
+        data.button = inputData.button || 0;
+      }
+      vm.postIOData('mouse', data);
+    } else if (inputData.type === 'wheel') {
+      vm.postIOData('mouseWheel', {
+        deltaX: inputData.deltaX,
+        deltaY: inputData.deltaY
+      });
+    } else if (inputData.type === 'keydown') {
+      vm.postIOData('keyboard', {
+        key: inputData.key,
+        code: inputData.code,
+        isDown: true
+      });
+    } else if (inputData.type === 'keyup') {
+      vm.postIOData('keyboard', {
+        key: inputData.key,
+        code: inputData.code,
+        isDown: false
+      });
+    }
+  } catch (e) {
+    // ignore
+  }
 };
 
 const securityManager = {
@@ -106,6 +181,20 @@ const DesktopHOC = function (WrappedComponent) {
           name: this.state.title,
           data: buffer
         })));
+
+      EditorPreload.onStageDetached(() => {
+        isStageDetached = true;
+        startFrameStreaming(this.props.vm);
+      });
+
+      EditorPreload.onStageReattached(() => {
+        isStageDetached = false;
+        stopFrameStreaming();
+      });
+
+      EditorPreload.onDetachedStageInput((inputData) => {
+        handleDetachedStageInput(this.props.vm, inputData);
+      });
 
       // This component is re-mounted when the locale changes, but we only want to load
       // the initial project once.
@@ -175,6 +264,10 @@ const DesktopHOC = function (WrappedComponent) {
       if (this.props.isFullScreen !== prevProps.isFullScreen) {
         EditorPreload.setIsFullScreen(this.props.isFullScreen);
       }
+    }
+    componentWillUnmount () {
+      stopFrameStreaming();
+      isStageDetached = false;
     }
     handleUpdateProjectTitle (newTitle) {
       this.setState({

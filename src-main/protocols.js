@@ -73,6 +73,10 @@ const FILE_SCHEMES = {
   'tw-file-access': {
     root: path.resolve(__dirname, '../src-renderer/file-access'),
     csp: "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'"
+  },
+  'tw-detached-stage': {
+    root: path.resolve(__dirname, '../src-renderer/detached-stage'),
+    csp: "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:"
   }
 };
 

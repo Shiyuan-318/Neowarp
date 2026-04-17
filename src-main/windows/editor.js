@@ -20,6 +20,7 @@ const privilegedFetch = require('../fetch');
 const RichPresence = require('../rich-presence.js');
 const FileAccessWindow = require('./file-access-window.js');
 const ExtensionDocumentationWindow = require('./extension-documentation.js');
+const DetachedStageWindow = require('./detached-stage.js');
 
 const TYPE_FILE = 'file';
 const TYPE_URL = 'url';
@@ -604,8 +605,49 @@ class EditorWindow extends ProjectRunningWindow {
       };
     });
 
+    // NeoWarp: Detached stage window
+    this.detachedStageWindow = null;
+
+    this.ipc.handle('detach-stage', () => {
+      if (this.detachedStageWindow) {
+        return;
+      }
+      this.detachedStageWindow = new DetachedStageWindow(this.window, this);
+      this.window.webContents.send('stage-detached');
+    });
+
+    this.ipc.handle('reattach-stage', () => {
+      if (this.detachedStageWindow) {
+        this.detachedStageWindow.close();
+        this.detachedStageWindow = null;
+      }
+    });
+
+    this.ipc.on('stage-frame', (event, dataURL) => {
+      if (this.detachedStageWindow) {
+        this.detachedStageWindow.sendFrame(dataURL);
+      }
+    });
+
     this.loadURL('tw-editor://./gui/gui.html');
     this.show();
+  }
+
+  handleDetachedStageClosed() {
+    this.detachedStageWindow = null;
+    try {
+      this.window.webContents.send('stage-reattached');
+    } catch (e) {
+      // Window might be closing
+    }
+  }
+
+  handleDetachedStageInput(inputData) {
+    try {
+      this.window.webContents.send('detached-stage-input', inputData);
+    } catch (e) {
+      // Window might be closing
+    }
   }
 
   /**
