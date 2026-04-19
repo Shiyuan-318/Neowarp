@@ -34,7 +34,8 @@ contextBridge.exposeInMainWorld('EditorPreload', {
   },
   onDetachedStageInput: (callback) => {
     detachedStageInputCallback = callback;
-  }
+  },
+  getCodeAreaBackgroundImage: () => ipcRenderer.sendSync('get-code-area-background-image')
 });
 
 let exportForPackager = () => Promise.reject(new Error('exportForPackager missing'));

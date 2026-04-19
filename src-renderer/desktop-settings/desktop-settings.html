@@ -334,6 +334,60 @@
 
         openUserData.textContent = strings['desktop-settings.open-user-data'];
       </script>
+
+      <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+      
+      <h2>代码区背景设置</h2>
+      <div class="code-background-section">
+        <div class="current-background-preview" style="margin: 10px 0;">
+          <img id="background-preview" style="max-width: 200px; max-height: 150px; border-radius: 8px; display: none;" />
+          <p id="no-background-text" style="color: #666; font-size: 14px;">当前未设置背景图</p>
+        </div>
+        <input type="file" id="background-file-input" accept="image/*" style="display: none;">
+        <button class="select-background-btn" style="background: #4c97ff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">选择背景图片</button>
+        <button class="clear-background-btn" style="background: #ff4c4c; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-left: 10px;">清除背景</button>
+      </div>
+      <script>
+        const backgroundFileInput = document.getElementById('background-file-input');
+        const selectBackgroundBtn = document.querySelector('.select-background-btn');
+        const clearBackgroundBtn = document.querySelector('.clear-background-btn');
+        const backgroundPreview = document.getElementById('background-preview');
+        const noBackgroundText = document.getElementById('no-background-text');
+        
+        // Load current background
+        const currentBackground = settings.codeAreaBackgroundImage;
+        if (currentBackground) {
+          backgroundPreview.src = currentBackground;
+          backgroundPreview.style.display = 'block';
+          noBackgroundText.style.display = 'none';
+        }
+        
+        selectBackgroundBtn.addEventListener('click', () => {
+          backgroundFileInput.click();
+        });
+        
+        backgroundFileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const imageData = event.target.result;
+              DesktopSettingsPreload.setCodeAreaBackgroundImage(imageData);
+              backgroundPreview.src = imageData;
+              backgroundPreview.style.display = 'block';
+              noBackgroundText.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+        
+        clearBackgroundBtn.addEventListener('click', () => {
+          DesktopSettingsPreload.setCodeAreaBackgroundImage(null);
+          backgroundPreview.style.display = 'none';
+          noBackgroundText.style.display = 'block';
+          backgroundFileInput.value = '';
+        });
+      </script>
     </main>
   </body>
 </html>

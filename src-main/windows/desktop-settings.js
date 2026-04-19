@@ -29,7 +29,8 @@ class DesktopSettingsWindow extends AbstractWindow {
           spellchecker: settings.spellchecker,
           exitFullscreenOnEscape: settings.exitFullscreenOnEscape,
           richPresenceAvailable: RichPresence.isAvailable(),
-          richPresence: settings.richPresence
+          richPresence: settings.richPresence,
+          codeAreaBackgroundImage: settings.codeAreaBackgroundImage
         }
       };
     });
@@ -99,6 +100,12 @@ class DesktopSettingsWindow extends AbstractWindow {
 
     this.ipc.handle('open-user-data', async () => {
       shell.showItemInFolder(app.getPath('userData'));
+    });
+
+    this.ipc.handle('set-code-area-background-image', async (event, imageData) => {
+      settings.codeAreaBackgroundImage = imageData;
+      AbstractWindow.settingsChanged();
+      await settings.save();
     });
 
     this.loadURL('tw-desktop-settings://./desktop-settings.html');

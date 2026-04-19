@@ -196,6 +196,18 @@ const DesktopHOC = function (WrappedComponent) {
         handleDetachedStageInput(this.props.vm, inputData);
       });
 
+      // Apply code area background image
+      const backgroundImage = EditorPreload.getCodeAreaBackgroundImage();
+      if (backgroundImage) {
+        this.applyCodeAreaBackground(backgroundImage);
+      }
+
+      // Listen for settings changes
+      window.addEventListener('focus', () => {
+        const newBackgroundImage = EditorPreload.getCodeAreaBackgroundImage();
+        this.applyCodeAreaBackground(newBackgroundImage);
+      });
+
       // This component is re-mounted when the locale changes, but we only want to load
       // the initial project once.
       if (mountedOnce) {
@@ -273,6 +285,35 @@ const DesktopHOC = function (WrappedComponent) {
       this.setState({
         title: newTitle
       });
+    }
+    applyCodeAreaBackground (backgroundImage) {
+      // Apply background to injectionDiv (behind the blocks workspace)
+      // The glassmorphism effect is on blocklySvg via CSS backdrop-filter
+      const applyBackground = () => {
+        const injectionDiv = document.querySelector('.injectionDiv');
+        if (injectionDiv) {
+          if (backgroundImage) {
+            // Set background image on the container behind the workspace
+            injectionDiv.style.backgroundImage = `url(${backgroundImage})`;
+            injectionDiv.style.backgroundSize = 'cover';
+            injectionDiv.style.backgroundPosition = 'center';
+            injectionDiv.style.backgroundRepeat = 'no-repeat';
+            injectionDiv.style.backgroundColor = 'transparent';
+          } else {
+            // Clear background image - will fall back to CSS default
+            injectionDiv.style.backgroundImage = '';
+            injectionDiv.style.backgroundSize = '';
+            injectionDiv.style.backgroundPosition = '';
+            injectionDiv.style.backgroundRepeat = '';
+            injectionDiv.style.backgroundColor = '';
+          }
+        }
+      };
+      
+      // Try immediately and after a delay to ensure Blockly is loaded
+      applyBackground();
+      setTimeout(applyBackground, 500);
+      setTimeout(applyBackground, 1500);
     }
     render() {
       const {

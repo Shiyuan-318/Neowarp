@@ -177,6 +177,13 @@ class Settings {
   set richPresence (richPresence) {
     this.data.richPresence = richPresence;
   }
+
+  get codeAreaBackgroundImage () {
+    return this.data.codeAreaBackgroundImage || null;
+  }
+  set codeAreaBackgroundImage (codeAreaBackgroundImage) {
+    this.data.codeAreaBackgroundImage = codeAreaBackgroundImage;
+  }
 }
 
 module.exports = new Settings();

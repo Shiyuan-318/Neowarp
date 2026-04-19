@@ -1,7 +1,7 @@
 {
   "name": "neowarp",
   "description": "NeoWarp - Scratch mod with a compiler, dark mode, a bunch of addons, and more.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "GPL-3.0",
   "author": {
     "email": "contact@neowarp.org",
@@ -14,7 +14,8 @@
     "webpack:watch": "webpack --watch",
     "webpack:prod": "cross-env NODE_ENV=production webpack",
     "electron:start": "electron src-main/entrypoint.js",
-    "electron:package:dir": "electron-builder --dir"
+    "electron:package:dir": "electron-builder --dir",
+    "electron:build": "electron-builder"
   },
   "dependencies": {
     "semver": "^7.7.3"

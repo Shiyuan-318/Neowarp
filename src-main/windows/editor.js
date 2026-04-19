@@ -556,6 +556,10 @@ class EditorWindow extends ProjectRunningWindow {
       };
     });
 
+    this.ipc.on('get-code-area-background-image', (event) => {
+      event.returnValue = settings.codeAreaBackgroundImage;
+    });
+
     this.ipc.handle('check-drag-and-drop-path', (event, filePath) => {
       FileAccessWindow.check(filePath);
     });
