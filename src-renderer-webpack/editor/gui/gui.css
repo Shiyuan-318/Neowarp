@@ -18,3 +18,61 @@ a {
 p {
   margin: 0;
 }
+
+/* NeoWarp: Glassmorphism effect for blocks workspace */
+/* Main workspace glass effect */
+:global(.blocklySvg) {
+  background: transparent !important;
+}
+
+:global(.blocklySvg)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Toolbox glass effect */
+:global(.blocklyToolboxDiv) {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Flyout glass effect */
+:global(.blocklyFlyout) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(15px) saturate(180%);
+  -webkit-backdrop-filter: blur(15px) saturate(180%);
+}
+
+/* Dark theme support */
+:global(.sa-body-editor.dark) :global(.blocklySvg)::before {
+  background: rgba(30, 30, 30, 0.35);
+}
+
+:global(.sa-body-editor.dark) :global(.blocklyToolboxDiv) {
+  background: rgba(30, 30, 30, 0.25) !important;
+}
+
+:global(.sa-body-editor.dark) :global(.blocklyFlyout) {
+  background: rgba(30, 30, 30, 0.2) !important;
+}
+
+/* Ensure workspace content is above the glass overlay */
+:global(.blocklySvg) > * {
+  position: relative;
+  z-index: 1;
+}
+
+:global(.blocklyMainBackground) {
+  stroke: none;
+  fill: transparent !important;
+}
