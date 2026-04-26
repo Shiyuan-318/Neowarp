@@ -560,6 +560,12 @@ class EditorWindow extends ProjectRunningWindow {
       event.returnValue = settings.codeAreaBackgroundImage;
     });
 
+    this.ipc.handle('set-code-area-background-image', async (event, imageData) => {
+      settings.codeAreaBackgroundImage = imageData;
+      AbstractWindow.settingsChanged();
+      await settings.save();
+    });
+
     this.ipc.handle('check-drag-and-drop-path', (event, filePath) => {
       FileAccessWindow.check(filePath);
     });
