@@ -42,7 +42,14 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci --loglevel=info
+        run: |
+          # scratch-vm 的 prepublish 会从 packagerdata.turbowarp.org 下载文件
+          # 网络不稳定时可能超时，使用重试策略
+          for i in 1 2 3; do
+            npm ci --loglevel=info && break
+            echo "npm ci attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
 
       - name: Prepare extensions
         run: node scripts/prepare-extensions.mjs
