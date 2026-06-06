@@ -21,10 +21,13 @@ jobs:
     - name: Install dependencies
       run: |
         for i in 1 2 3; do
-          npm ci && break
+          rm -rf node_modules
+          npm ci && exit 0
           echo "npm ci attempt $i failed, retrying in 10s..."
           sleep 10
         done
+        echo "npm ci failed after 3 attempts"
+        exit 1
     - name: Prepare extensions
       # Don't need to do a full fetch, that would just cause a lot of unnecessary traffic
       run: node scripts/prepare-extensions.mjs

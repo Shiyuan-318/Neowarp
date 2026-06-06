@@ -46,10 +46,13 @@ jobs:
           # scratch-vm 的 prepublish 会从 packagerdata.turbowarp.org 下载文件
           # 网络不稳定时可能超时，使用重试策略
           for i in 1 2 3; do
-            npm ci --loglevel=info && break
+            rm -rf node_modules
+            npm ci --loglevel=info && exit 0
             echo "npm ci attempt $i failed, retrying in 10s..."
             sleep 10
           done
+          echo "npm ci failed after 3 attempts"
+          exit 1
 
       - name: Prepare extensions
         run: node scripts/prepare-extensions.mjs
