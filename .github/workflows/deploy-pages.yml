@@ -42,17 +42,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: |
-          # scratch-vm 的 prepublish 会从 packagerdata.turbowarp.org 下载文件
-          # 网络不稳定时可能超时，使用重试策略
-          for i in 1 2 3; do
-            rm -rf node_modules
-            npm ci --loglevel=info && exit 0
-            echo "npm ci attempt $i failed, retrying in 10s..."
-            sleep 10
-          done
-          echo "npm ci failed after 3 attempts"
-          exit 1
+        # 使用 --ignore-scripts 跳过 scratch-vm 的 prepublish（它会从 packagerdata.turbowarp.org
+        # 下载 microbit 固件，经常超时），scratch-vm 已有预编译产物无需重新构建
+        run: npm ci --ignore-scripts
 
       - name: Prepare extensions
         run: node scripts/prepare-extensions.mjs
