@@ -102,6 +102,10 @@ module.exports = [
                     {
                         from: 'font',
                         to: 'static/fonts'
+                    },
+                    {
+                        from: 'CNAME',
+                        to: 'CNAME'
                     }
                 ]
             })
